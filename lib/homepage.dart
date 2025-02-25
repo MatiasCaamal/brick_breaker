@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:brick_breaker/ball.dart';
+import 'package:brick_breaker/bricks.dart';
 import 'package:brick_breaker/coverscreen.dart';
+import 'package:brick_breaker/gameoverscreen.dart';
 import 'package:brick_breaker/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,11 +24,19 @@ class _HomepageState extends State<HomePage> {
   var ballDirection = direction.DOWN;
 
   //jugador
-  double playerX = 0;
-  double playerWidth = 0.3;
+  double playerX = -0.2;
+  double playerWidth = 0.4;
+
+  //ladrillos
+  double brickX = 0;
+  double brickY = -0.9;
+  double brickWidth = 0.4;
+  double brickHeight = 0.05;
+  bool brickBroken = false;
 
   //ajusted del juego
   bool hasGameStarted = false;
+  bool isGameOver = false;
 
   void startGame() {
     Timer.periodic(Duration(milliseconds: 10), (timer) {
@@ -35,7 +45,36 @@ class _HomepageState extends State<HomePage> {
 
       // movimiento de la pelota
       moveBall();
+
+      //Revisar si jugador muere
+      if (isPlayerDead()) {
+        timer.cancel();
+        isGameOver = true;
+      }
+
+      //Revisar si el ladrillo es golpeado
+      checkForBrokenBricks();
     });
+  }
+
+  void checkForBrokenBricks() {
+    //Revisa cuando golpea el ladrillo de abajo
+    if (ballX >= brickX &&
+        ballX <= brickX + brickWidth &&
+        ballY >= brickY + brickHeight &&
+        brickBroken == false) {
+      setState(() {
+        brickBroken = true;
+      });
+    }
+  }
+
+  bool isPlayerDead() {
+    if (ballY >= 1) {
+      return true;
+    }
+
+    return false;
   }
 
   void moveBall() {
@@ -50,7 +89,7 @@ class _HomepageState extends State<HomePage> {
 
   void updateDirection() {
     setState(() {
-      if (ballY >= 0.9) {
+      if (ballY >= 0.9 && ballX >= playerX && ballX <= playerX + playerWidth) {
         ballDirection = direction.UP;
       } else if (ballY <= -0.9) {
         ballDirection = direction.DOWN;
@@ -96,6 +135,9 @@ class _HomepageState extends State<HomePage> {
                   // presionar para jugar
                   CoverScreen(hasGameStarted: hasGameStarted),
 
+                  //Game Over
+                  GameOverScreen(isGameOver: isGameOver),
+
                   //ball
                   MyBall(
                     ballX: ballX,
@@ -107,6 +149,15 @@ class _HomepageState extends State<HomePage> {
                     playerX: playerX,
                     playerWidth: playerWidth,
                   ),
+
+                  //Ladrillos
+                  MyBrick(
+                    brickX: brickX,
+                    brickY: brickY,
+                    brickWidth: brickWidth,
+                    brickHeight: brickHeight,
+                    brickBroken: brickBroken,
+                  )
 
                   //Ubicación del jugador
                   /* Container(
