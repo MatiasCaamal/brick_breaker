@@ -21,7 +21,7 @@ class _HomepageState extends State<HomePage> {
   //ball
   double ballX = 0;
   double ballY = 0;
-  double ballXincrements = 0.01;
+  double ballXincrements = 0.02;
   double ballYincrements = 0.01;
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.LEFT;
@@ -85,17 +85,63 @@ class _HomepageState extends State<HomePage> {
         setState(() {
           MyBricks[i][2] = true;
 
+          double leftSideDist = (MyBricks[i][0] - ballX).abs();
+          double rightSideDist = (MyBricks[i][0] + brickWidth - ballX).abs();
+          double topSideDist = (MyBricks[i][1] - ballY).abs();
+          double bottomSideDist = (MyBricks[i][1] + brickHeight - ballY).abs();
 
-          ballYDirection = direction.DOWN;
+          String min =
+              findMin(leftSideDist, rightSideDist, topSideDist, bottomSideDist);
 
-          ballYDirection = direction.UP;
+          switch (min) {
+            case 'left':
+              ballXDirection = direction.LEFT;
 
-          ballYDirection = direction.LEFT;
+              break;
+            case 'right':
+              ballXDirection = direction.RIGHT;
 
-          ballYDirection = direction.RIGHT;
+              break;
+            case 'up':
+              ballYDirection = direction.UP;
+
+              break;
+            case 'down':
+              ballYDirection = direction.DOWN;
+
+              break;
+          }
         });
       }
     }
+  }
+
+  String findMin(double a, double b, double c, double d) {
+    List<double> myList = [
+      a,
+      b,
+      c,
+      d,
+    ];
+
+    double currentMin = a;
+    for (int i = 0; i < myList.length; i++) {
+      if (myList[i] < currentMin) {
+        currentMin = myList[i];
+      }
+    }
+
+    if ((currentMin - a).abs() < 0.01) {
+      return 'left';
+    } else if ((currentMin - b).abs() < 0.01) {
+      return 'right';
+    } else if ((currentMin - c).abs() < 0.01) {
+      return 'top';
+    } else if ((currentMin - d).abs() < 0.01) {
+      return 'bottom';
+    }
+
+    return '';
   }
 
   bool isPlayerDead() {
@@ -173,6 +219,24 @@ class _HomepageState extends State<HomePage> {
     });
   }
 
+  void resetGame(){
+    setState(() {
+      playerX = -0.2;
+      ballX = 0;
+      ballY = 0;
+      isGameOver = false;
+      hasGameStarted = false;
+      MyBricks = [
+    // [x, y, broken = true/false]
+    //[firstBrickX, firstBrickY, false],
+    [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false]
+  ];
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return RawKeyboardListener(
@@ -193,10 +257,10 @@ class _HomepageState extends State<HomePage> {
               child: Stack(
                 children: [
                   // presionar para jugar
-                  CoverScreen(hasGameStarted: hasGameStarted),
+                  CoverScreen(hasGameStarted: hasGameStarted, isGameOver: isGameOver,),
 
                   //Game Over
-                  GameOverScreen(isGameOver: isGameOver),
+                  GameOverScreen(isGameOver: isGameOver, function: resetGame,),
 
                   //ball
                   MyBall(
@@ -208,6 +272,7 @@ class _HomepageState extends State<HomePage> {
                   MyPlayer(
                     playerX: playerX,
                     playerWidth: playerWidth,
+                    
                   ),
 
                   //Ladrillos
@@ -217,7 +282,6 @@ class _HomepageState extends State<HomePage> {
                     brickBroken: MyBricks[0][2],
                     brickWidth: brickWidth,
                     brickHeight: brickHeight,
-                    
                   ),
                   MyBrick(
                     brickX: MyBricks[1][0],
