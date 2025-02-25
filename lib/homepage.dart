@@ -37,6 +37,9 @@ class _HomepageState extends State<HomePage> {
   static double brickHeight = 0.05;
   static double brickGap = 0.01;
   static int numberOfBrickInRow = 3;
+  //static int numberOfBrickInRow = 5; // Número de ladrillos por fila
+  //static int numberOfRows = 2; // Número de filas
+
   static double wallGap = 0.5 *
       (2 -
           numberOfBrickInRow * brickWidth -
@@ -50,11 +53,28 @@ class _HomepageState extends State<HomePage> {
     [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false]
-  ];
+  ]; 
+
+  // LISTA DINÁMICA DE LADRILLOS
+  /* List MyBricks = [];
+
+  void generateBricks() {
+    for (int row = 0; row < numberOfRows; row++) {
+      for (int col = 0; col < numberOfBrickInRow; col++) {
+        double x = firstBrickX + col * (brickWidth + brickGap);
+        double y = firstBrickY + row * (brickHeight + brickGap);
+        MyBricks.add([x, y, false]);
+      }
+    }
+  } */
 
   //ajusted del juego
   bool hasGameStarted = false;
   bool isGameOver = false;
+
+  /* _HomepageState() {
+    generateBricks(); // Genera los ladrillos al inicializar
+  } */
 
   void startGame() {
     Timer.periodic(Duration(milliseconds: 10), (timer) {
@@ -219,7 +239,7 @@ class _HomepageState extends State<HomePage> {
     });
   }
 
-  void resetGame(){
+  void resetGame() {
     setState(() {
       playerX = -0.2;
       ballX = 0;
@@ -227,13 +247,12 @@ class _HomepageState extends State<HomePage> {
       isGameOver = false;
       hasGameStarted = false;
       MyBricks = [
-    // [x, y, broken = true/false]
-    //[firstBrickX, firstBrickY, false],
-    [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false]
-  ];
-      
+        // [x, y, broken = true/false]
+        //[firstBrickX, firstBrickY, false],
+        [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
+        [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
+        [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false]
+      ];
     });
   }
 
@@ -257,10 +276,16 @@ class _HomepageState extends State<HomePage> {
               child: Stack(
                 children: [
                   // presionar para jugar
-                  CoverScreen(hasGameStarted: hasGameStarted, isGameOver: isGameOver,),
+                  CoverScreen(
+                    hasGameStarted: hasGameStarted,
+                    isGameOver: isGameOver,
+                  ),
 
                   //Game Over
-                  GameOverScreen(isGameOver: isGameOver, function: resetGame,),
+                  GameOverScreen(
+                    isGameOver: isGameOver,
+                    function: resetGame,
+                  ),
 
                   //ball
                   MyBall(
@@ -272,8 +297,17 @@ class _HomepageState extends State<HomePage> {
                   MyPlayer(
                     playerX: playerX,
                     playerWidth: playerWidth,
-                    
                   ),
+                  
+                  /* PARA AGREGAR LADRILLOS AUTOMATICAMENTE
+                  for (var brick in MyBricks)
+                    MyBrick(
+                      brickX: brick[0],
+                      brickY: brick[1],
+                      brickBroken: brick[2],
+                      brickWidth: brickWidth,
+                      brickHeight: brickHeight,
+                    ), */
 
                   //Ladrillos
                   MyBrick(
